@@ -1,5 +1,9 @@
 allprojects {
     repositories {
+        maven {
+            url = uri("http://storage.flutter-io.cn/download.flutter.io")
+            isAllowInsecureProtocol = true
+        }
         google()
         mavenCentral()
     }

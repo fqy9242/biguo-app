@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<!-- 允许应用程序访问互联网 -->
+<uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="biguo"
         android:name="${applicationName}"

@@ -22,7 +22,7 @@ class _QuizPageState extends State<QuizPage> {
   Map<String, bool> _isCorrect = {};
   Set<String> _answeredQuestions = {};
   bool _showResults = false;
-  bool _autoNext = false;
+  bool _autoNext = true;
   int _correctCount = 0;
   int _totalCount = 0;
 

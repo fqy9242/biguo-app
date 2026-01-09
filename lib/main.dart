@@ -265,48 +265,35 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('必过'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: Colors.white,
-      ),
-      extendBodyBehindAppBar: true,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF667eea),
-              Color(0xFF764ba2),
-            ],
+        title: const Text('我的学习空间'),
+        backgroundColor: Colors.white,
+        elevation: 1,
+        foregroundColor: Colors.black,
+        actions: [
+          TextButton(
+            onPressed: () {},
+            child: const Text('合并题库'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.blue,
+            ),
           ),
-        ),
+          TextButton(
+            onPressed: () {},
+            child: const Text('历史记录'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.blue,
+            ),
+          ),
+        ],
+      ),
+      body: Container(
+        color: Colors.white,
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: <Widget>[
                 const SizedBox(height: 20),
-                const Text(
-                  '欢迎使用必过',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  '选择一个题库开始学习，或创建新题库',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
                 Expanded(
                   child: _bankManager.getAllQuizBanks().isEmpty
                       ? Center(
@@ -349,115 +336,154 @@ class _HomePageState extends State<HomePage> {
                           itemCount: _bankManager.getAllQuizBanks().length,
                           itemBuilder: (context, index) {
                             final bank = _bankManager.getAllQuizBanks()[index];
-                            return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 10),
-                              child: Card(
-                                elevation: 8,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        Colors.white,
-                                        Colors.grey[50]!,
-                                      ],
+                            final isRecent = index == 0; // 模拟最近学习
+                            final isStarred = index == _bankManager.getAllQuizBanks().length - 1; // 模拟星标
+                            
+                            return GestureDetector(
+                              onTap: () => _navigateToQuiz(bank),
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.grey[200]!,
+                                      width: 1,
                                     ),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(24),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // 左侧图标
+                                      Container(
+                                        margin: const EdgeInsets.only(right: 12),
+                                        child: Stack(
                                           children: [
-                                            Text(
-                                              bank.name,
-                                              style: const TextStyle(
-                                                fontSize: 22,
-                                                fontWeight: FontWeight.bold,
-                                                color: Color(0xFF333333),
+                                            Container(
+                                              width: 48,
+                                              height: 48,
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue[100],
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              child: const Icon(
+                                                Icons.menu_book,
+                                                color: Colors.blue,
+                                                size: 24,
                                               ),
                                             ),
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(12),
-                                                color: const Color(0xFFE3F2FD),
-                                              ),
-                                              child: Text(
-                                                '${bank.questions.length} 道题目',
-                                                style: const TextStyle(
-                                                  color: Color(0xFF1976D2),
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
+                                            Positioned(
+                                              bottom: -4,
+                                              right: -4,
+                                              child: Container(
+                                                width: 20,
+                                                height: 20,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.yellow,
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                child: const Icon(
+                                                  Icons.arrow_upward,
+                                                  color: Colors.black,
+                                                  size: 12,
                                                 ),
                                               ),
                                             ),
                                           ],
                                         ),
-                                        if (bank.description != null) ...[
-                                          const SizedBox(height: 12),
-                                          Text(
-                                            bank.description!,
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              height: 1.5,
+                                      ),
+                                      
+                                      // 中间内容
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  bank.name,
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                if (isStarred) ...[
+                                                  const SizedBox(width: 8),
+                                                  const Icon(
+                                                    Icons.star,
+                                                    color: Colors.yellow,
+                                                    size: 16,
+                                                  ),
+                                                ],
+                                              ],
                                             ),
+                                            const SizedBox(height: 4),
+                                            Row(
+                                              children: [
+                                                if (isRecent) ...[
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.red[100],
+                                                      borderRadius: BorderRadius.circular(4),
+                                                    ),
+                                                    child: const Text(
+                                                      '最近学习',
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                ],
+                                                Text(
+                                                  '${bank.questions.length}道',
+                                                  style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 16),
+                                                Text(
+                                                  isRecent ? '2026-01-08' : '2025-12-31',
+                                                  style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      
+                                      // 右侧操作按钮
+                                      Column(
+                                        children: [
+                                          IconButton(
+                                            onPressed: () {},
+                                            icon: Icon(
+                                              Icons.refresh,
+                                              color: Colors.grey[500],
+                                              size: 20,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                          ),
+                                          IconButton(
+                                            onPressed: () {},
+                                            icon: Icon(
+                                              Icons.more_vert,
+                                              color: Colors.grey[500],
+                                              size: 20,
+                                            ),
+                                            padding: EdgeInsets.zero,
                                           ),
                                         ],
-                                        const SizedBox(height: 24),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            OutlinedButton.icon(
-                                              onPressed: () => _navigateToImportWord(bank),
-                                              icon: const Icon(Icons.file_upload),
-                                              label: const Text('导入Word'),
-                                              style: OutlinedButton.styleFrom(
-                                                foregroundColor: const Color(0xFF9C27B0),
-                                                side: const BorderSide(color: Color(0xFF9C27B0)),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            OutlinedButton.icon(
-                                              onPressed: () => _navigateToQuestionBank(bank),
-                                              icon: const Icon(Icons.manage_search),
-                                              label: const Text('管理题库'),
-                                              style: OutlinedButton.styleFrom(
-                                                foregroundColor: const Color(0xFF388E3C),
-                                                side: const BorderSide(color: Color(0xFF388E3C)),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            ElevatedButton.icon(
-                                              onPressed: () => _navigateToQuiz(bank),
-                                              icon: const Icon(Icons.quiz),
-                                              label: const Text('开始刷题'),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: const Color(0xFF1976D2),
-                                                foregroundColor: Colors.white,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -465,22 +491,22 @@ class _HomePageState extends State<HomePage> {
                           },
                         ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: _createNewQuizBank,
                   icon: const Icon(Icons.add),
                   label: const Text('创建新题库'),
                   style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 56),
-                    backgroundColor: const Color(0xFFFF9800),
+                    minimumSize: const Size(double.infinity, 48),
+                    backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    elevation: 4,
+                    elevation: 2,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
               ],
             ),
           ),
