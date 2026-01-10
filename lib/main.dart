@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'models/lib/models.dart';
 import 'pages/quiz_page.dart';
 import 'pages/question_bank_page.dart';
 import 'pages/add_question_page.dart';
 import 'pages/import_word_page.dart';
+import 'pages/login_page.dart';
+import 'pages/profile_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,11 +38,25 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final QuizBankManager _bankManager = QuizBankManager();
   bool _isInitialized = false;
+  String? _loggedInUser;
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _initializeMockData();
+    _loadLoginStatus();
+  }
+
+  // 加载登录状态
+  Future<void> _loadLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final username = prefs.getString('loggedInUser');
+    if (username != null) {
+      setState(() {
+        _loggedInUser = username;
+      });
+    }
   }
 
   // 初始化模拟数据
@@ -49,7 +66,7 @@ class _HomePageState extends State<HomePage> {
       name: '语文期末考试题库',
       description: '初中语文期末考试题目',
     );
-    
+
     final mockBank2 = QuizBank(
       id: '2',
       name: 'Flutter基础题库',
@@ -61,12 +78,7 @@ class _HomePageState extends State<HomePage> {
         id: '1',
         content: '以下哪个是Flutter的特点？',
         difficulty: Difficulty.medium,
-        options: [
-          '跨平台开发',
-          '仅支持iOS',
-          '仅支持Android',
-          '需要原生代码开发',
-        ],
+        options: ['跨平台开发', '仅支持iOS', '仅支持Android', '需要原生代码开发'],
         correctAnswerIndex: 0,
         explanation: 'Flutter是一个跨平台的UI框架，可以使用一套代码构建iOS、Android、Web和桌面应用。',
         bankId: mockBank2.id,
@@ -91,7 +103,8 @@ class _HomePageState extends State<HomePage> {
         id: '4',
         content: '请简要说明Flutter的热重载功能。',
         difficulty: Difficulty.hard,
-        referenceAnswer: 'Flutter的热重载功能允许开发者在不重启应用的情况下，将代码更改实时应用到运行中的应用上，大大提高了开发效率。',
+        referenceAnswer:
+            'Flutter的热重载功能允许开发者在不重启应用的情况下，将代码更改实时应用到运行中的应用上，大大提高了开发效率。',
         explanation: '热重载通过替换应用的Widget树来实现，保留应用的状态，使开发者能够快速看到代码更改的效果。',
         bankId: mockBank2.id,
       ),
@@ -102,12 +115,7 @@ class _HomePageState extends State<HomePage> {
         id: '5',
         content: '下列哪个是唐代诗人？',
         difficulty: Difficulty.easy,
-        options: [
-          '李白',
-          '苏轼',
-          '辛弃疾',
-          '李清照',
-        ],
+        options: ['李白', '苏轼', '辛弃疾', '李清照'],
         correctAnswerIndex: 0,
         explanation: '李白是唐代著名诗人，被称为"诗仙"。',
         bankId: mockBank1.id,
@@ -124,10 +132,10 @@ class _HomePageState extends State<HomePage> {
 
     mockBank1.importQuestions(mockQuestions1);
     mockBank2.importQuestions(mockQuestions2);
-    
+
     _bankManager.addQuizBank(mockBank1);
     _bankManager.addQuizBank(mockBank2);
-    
+
     setState(() {
       _isInitialized = true;
     });
@@ -171,18 +179,18 @@ class _HomePageState extends State<HomePage> {
           TextButton(
             onPressed: () {
               if (bankName.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('请输入题库名称')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('请输入题库名称')));
                 return;
               }
-              
+
               final newBank = QuizBank(
                 id: DateTime.now().millisecondsSinceEpoch.toString(),
                 name: bankName,
                 description: bankDescription.isEmpty ? null : bankDescription,
               );
-              
+
               _bankManager.addQuizBank(newBank);
               Navigator.pop(context);
               setState(() {});
@@ -206,10 +214,8 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => QuizPage(
-          questions: questions,
-          title: '练习 - ${bank.name}',
-        ),
+        builder: (context) =>
+            QuizPage(questions: questions, title: '练习 - ${bank.name}'),
       ),
     );
   }
@@ -254,11 +260,38 @@ class _HomePageState extends State<HomePage> {
   // 显示消息
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+    );
+  }
+
+  // 导航到登录页面
+  void _navigateToLogin() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LoginPage(onLoginSuccess: _handleLoginSuccess),
       ),
     );
+  }
+
+  // 处理登录成功
+  Future<void> _handleLoginSuccess(String username) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('loggedInUser', username);
+    setState(() {
+      _loggedInUser = username;
+    });
+    _showMessage('登录成功，欢迎 $username');
+  }
+
+  // 处理登出
+  Future<void> _handleLogout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('loggedInUser');
+    setState(() {
+      _loggedInUser = null;
+    });
+    _showMessage('已登出');
   }
 
   @override
@@ -269,22 +302,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         elevation: 1,
         foregroundColor: Colors.black,
-        actions: [
-          TextButton(
-            onPressed: () {},
-            child: const Text('合并题库'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.blue,
-            ),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('历史记录'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.blue,
-            ),
-          ),
-        ],
+        actions: [],
       ),
       body: Container(
         color: Colors.white,
@@ -337,8 +355,11 @@ class _HomePageState extends State<HomePage> {
                           itemBuilder: (context, index) {
                             final bank = _bankManager.getAllQuizBanks()[index];
                             final isRecent = index == 0; // 模拟最近学习
-                            final isStarred = index == _bankManager.getAllQuizBanks().length - 1; // 模拟星标
-                            
+                            final isStarred =
+                                index ==
+                                _bankManager.getAllQuizBanks().length -
+                                    1; // 模拟星标
+
                             return GestureDetector(
                               onTap: () => _navigateToQuiz(bank),
                               child: Container(
@@ -352,13 +373,18 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       // 左侧图标
                                       Container(
-                                        margin: const EdgeInsets.only(right: 12),
+                                        margin: const EdgeInsets.only(
+                                          right: 12,
+                                        ),
                                         child: Stack(
                                           children: [
                                             Container(
@@ -366,7 +392,8 @@ class _HomePageState extends State<HomePage> {
                                               height: 48,
                                               decoration: BoxDecoration(
                                                 color: Colors.blue[100],
-                                                borderRadius: BorderRadius.circular(8),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
                                               ),
                                               child: const Icon(
                                                 Icons.menu_book,
@@ -382,7 +409,8 @@ class _HomePageState extends State<HomePage> {
                                                 height: 20,
                                                 decoration: BoxDecoration(
                                                   color: Colors.yellow,
-                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
                                                 ),
                                                 child: const Icon(
                                                   Icons.arrow_upward,
@@ -394,11 +422,12 @@ class _HomePageState extends State<HomePage> {
                                           ],
                                         ),
                                       ),
-                                      
+
                                       // 中间内容
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Row(
                                               children: [
@@ -424,10 +453,17 @@ class _HomePageState extends State<HomePage> {
                                               children: [
                                                 if (isRecent) ...[
                                                   Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 6,
+                                                          vertical: 2,
+                                                        ),
                                                     decoration: BoxDecoration(
                                                       color: Colors.red[100],
-                                                      borderRadius: BorderRadius.circular(4),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
                                                     ),
                                                     child: const Text(
                                                       '最近学习',
@@ -448,7 +484,9 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                                 const SizedBox(width: 16),
                                                 Text(
-                                                  isRecent ? '2026-01-08' : '2025-12-31',
+                                                  isRecent
+                                                      ? '2026-01-08'
+                                                      : '2025-12-31',
                                                   style: TextStyle(
                                                     color: Colors.grey[600],
                                                     fontSize: 14,
@@ -459,7 +497,7 @@ class _HomePageState extends State<HomePage> {
                                           ],
                                         ),
                                       ),
-                                      
+
                                       // 右侧操作按钮
                                       Column(
                                         children: [
@@ -511,6 +549,40 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+            // 根据索引切换不同的页面
+            switch (index) {
+              case 0:
+                // 首页，保持当前页面
+                break;
+              case 1:
+                // 个人中心页面
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(
+                      loggedInUser: _loggedInUser,
+                      onLogout: _handleLogout,
+                    ),
+                  ),
+                );
+                break;
+            }
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: '首页'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: '我的'),
+        ],
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        elevation: 2,
       ),
     );
   }
