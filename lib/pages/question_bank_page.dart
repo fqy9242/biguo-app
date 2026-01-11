@@ -34,10 +34,16 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
 
   void _filterQuestions() {
     setState(() {
-      _filteredQuestions = widget.questionBank.getAllQuestions().where((question) {
-        final matchesType = _selectedType == null || question.type == _selectedType;
-        final matchesDifficulty = _selectedDifficulty == null || question.difficulty == _selectedDifficulty;
-        final matchesSearch = _searchQuery.isEmpty || 
+      _filteredQuestions = widget.questionBank.getAllQuestions().where((
+        question,
+      ) {
+        final matchesType =
+            _selectedType == null || question.type == _selectedType;
+        final matchesDifficulty =
+            _selectedDifficulty == null ||
+            question.difficulty == _selectedDifficulty;
+        final matchesSearch =
+            _searchQuery.isEmpty ||
             question.content.toLowerCase().contains(_searchQuery.toLowerCase());
         return matchesType && matchesDifficulty && matchesSearch;
       }).toList();
@@ -56,9 +62,7 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
   void _navigateToAddQuestion() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const AddQuestionPage(),
-      ),
+      MaterialPageRoute(builder: (context) => const AddQuestionPage()),
     );
 
     if (result is Question) {
@@ -99,9 +103,7 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
               Navigator.pop(context);
             },
             child: const Text('删除'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
           ),
         ],
       ),
@@ -130,6 +132,106 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
       case Difficulty.hard:
         return '困难';
     }
+  }
+
+  // 生成AI解析
+  void _generateAIAnalysis(Question question) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('AI解析'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 20),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 20),
+              const Text('正在生成AI解析，请稍候...'),
+            ],
+          ),
+        );
+      },
+    );
+
+    // 模拟API调用延迟
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pop(context);
+
+      // 显示AI解析结果
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('AI解析结果'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 16),
+                  Text(
+                    question.content,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.blue.withOpacity(0.05),
+                    ),
+                    child: Text(
+                      '这道题主要考察了相关知识点的理解和应用。\n\n' +
+                          '**核心知识点：**\n' +
+                          '- 知识点1：相关概念和定义\n' +
+                          '- 知识点2：实际应用场景\n' +
+                          '- 知识点3：常见误区分析\n\n' +
+                          '**解析过程：**\n' +
+                          '1. 首先，我们需要理解题目所涉及的基本概念\n' +
+                          '2. 然后，分析每个选项的正确性\n' +
+                          '3. 最后，结合知识点得出正确答案\n\n' +
+                          '**总结：**\n' +
+                          '通过这道题，我们可以更好地理解相关知识点的实际应用，' +
+                          '同时也能提高我们的分析和解决问题的能力。',
+                      style: const TextStyle(fontSize: 14, height: 1.6),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('关闭'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _generateAIAnalysis(question); // 重新生成解析
+                },
+                child: const Text('重新生成'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  // 保存解析结果
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('解析结果已保存')));
+                },
+                child: const Text('保存解析'),
+              ),
+            ],
+          );
+        },
+      );
+    });
   }
 
   @override
@@ -257,14 +359,18 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
                     itemBuilder: (context, index) {
                       final question = _filteredQuestions[index];
                       return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     _getQuestionTypeText(question.type),
@@ -274,14 +380,19 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
                                     ),
                                   ),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(12),
-                                      color: question.difficulty == Difficulty.easy
+                                      color:
+                                          question.difficulty == Difficulty.easy
                                           ? Colors.green
-                                          : question.difficulty == Difficulty.medium
-                                              ? Colors.orange
-                                              : Colors.red,
+                                          : question.difficulty ==
+                                                Difficulty.medium
+                                          ? Colors.orange
+                                          : Colors.red,
                                     ),
                                     child: Text(
                                       _getDifficultyText(question.difficulty),
@@ -304,13 +415,30 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   IconButton(
-                                    onPressed: () => _navigateToEditQuestion(question),
-                                    icon: const Icon(Icons.edit, color: Colors.blue),
+                                    onPressed: () =>
+                                        _generateAIAnalysis(question),
+                                    icon: Icon(
+                                      Icons.lightbulb_outline,
+                                      color: Colors.yellow[600],
+                                    ),
+                                    tooltip: 'AI解析',
+                                  ),
+                                  IconButton(
+                                    onPressed: () =>
+                                        _navigateToEditQuestion(question),
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      color: Colors.blue,
+                                    ),
                                     tooltip: '编辑',
                                   ),
                                   IconButton(
-                                    onPressed: () => _deleteQuestion(question.id),
-                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () =>
+                                        _deleteQuestion(question.id),
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
                                     tooltip: '删除',
                                   ),
                                 ],

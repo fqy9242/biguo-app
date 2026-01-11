@@ -6,11 +6,8 @@ class QuizPage extends StatefulWidget {
   final List<Question> questions;
   final String title;
 
-  const QuizPage({
-    Key? key,
-    required this.questions,
-    this.title = '开始练习',
-  }) : super(key: key);
+  const QuizPage({Key? key, required this.questions, this.title = '开始练习'})
+    : super(key: key);
 
   @override
   State<QuizPage> createState() => _QuizPageState();
@@ -58,7 +55,7 @@ class _QuizPageState extends State<QuizPage> {
   void _handleAnswerChanged(dynamic answer) {
     setState(() {
       _userAnswers[_currentQuestion.id] = answer;
-      
+
       // 立即判断对错
       bool isCorrect = false;
       switch (_currentQuestion.type) {
@@ -74,20 +71,22 @@ class _QuizPageState extends State<QuizPage> {
         default:
           isCorrect = false;
       }
-      
+
       // 更新正确题数
       bool wasCorrect = _isCorrect[_currentQuestion.id] ?? false;
       _isCorrect[_currentQuestion.id] = isCorrect;
       _answeredQuestions.add(_currentQuestion.id);
-      
+
       if (isCorrect && !wasCorrect) {
         _correctCount++;
       } else if (!isCorrect && wasCorrect) {
         _correctCount--;
       }
-      
+
       // 如果设置了自动跳题且答案正确，自动跳转到下一题
-      if (_autoNext && isCorrect && _currentQuestionIndex < widget.questions.length - 1) {
+      if (_autoNext &&
+          isCorrect &&
+          _currentQuestionIndex < widget.questions.length - 1) {
         _nextQuestion();
       }
     });
@@ -96,7 +95,7 @@ class _QuizPageState extends State<QuizPage> {
   void _markAsAnswered() {
     setState(() {
       _answeredQuestions.add(_currentQuestion.id);
-      
+
       // 手动标记完成时判断对错
       bool isCorrect = false;
       switch (_currentQuestion.type) {
@@ -121,11 +120,11 @@ class _QuizPageState extends State<QuizPage> {
           // 选择题和判断题已经在_handleAnswerChanged中判断过
           isCorrect = _isCorrect[_currentQuestion.id] ?? false;
       }
-      
+
       // 更新正确题数
       bool wasCorrect = _isCorrect[_currentQuestion.id] ?? false;
       _isCorrect[_currentQuestion.id] = isCorrect;
-      
+
       if (isCorrect && !wasCorrect) {
         _correctCount++;
       } else if (!isCorrect && wasCorrect) {
@@ -158,7 +157,7 @@ class _QuizPageState extends State<QuizPage> {
         correctCount++;
       }
     }
-    
+
     setState(() {
       _correctCount = correctCount;
       _showResults = true;
@@ -174,7 +173,7 @@ class _QuizPageState extends State<QuizPage> {
       _showResults = false;
       _autoNext = false;
       _correctCount = 0;
-      
+
       // 重新初始化用户答案
       for (var question in widget.questions) {
         switch (question.type) {
@@ -206,6 +205,108 @@ class _QuizPageState extends State<QuizPage> {
     });
   }
 
+  // 生成AI解析
+  void _generateAIAnalysis() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('AI解析'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 20),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 20),
+              const Text('正在生成AI解析，请稍候...'),
+            ],
+          ),
+        );
+      },
+    );
+
+    // 模拟API调用延迟
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pop(context);
+
+      // 显示AI解析结果
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('AI解析结果'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 16),
+                  Text(
+                    _currentQuestion.content,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.blue.withOpacity(0.05),
+                    ),
+                    child: Text(
+                      '这道题主要考察了相关知识点的理解和应用。\n\n' +
+                          '**核心知识点：**\n' +
+                          '- 知识点1：相关概念和定义\n' +
+                          '- 知识点2：实际应用场景\n' +
+                          '- 知识点3：常见误区分析\n\n' +
+                          '**解析过程：**\n' +
+                          '1. 首先，我们需要理解题目所涉及的基本概念\n' +
+                          '2. 然后，分析每个选项的正确性\n' +
+                          '3. 最后，结合知识点得出正确答案\n\n' +
+                          '**答案解析：**\n' +
+                          '正确答案是：${_getCorrectAnswerText(_currentQuestion)}\n\n' +
+                          '**总结：**\n' +
+                          '通过这道题，我们可以更好地理解相关知识点的实际应用，' +
+                          '同时也能提高我们的分析和解决问题的能力。',
+                      style: const TextStyle(fontSize: 14, height: 1.6),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('关闭'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _generateAIAnalysis(); // 重新生成解析
+                },
+                child: const Text('重新生成'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  // 保存解析结果
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('解析结果已保存')));
+                },
+                child: const Text('保存解析'),
+              ),
+            ],
+          );
+        },
+      );
+    });
+  }
+
   // 显示答题卡
   void _showAnswerCard() {
     showDialog(
@@ -227,11 +328,19 @@ class _QuizPageState extends State<QuizPage> {
                   ),
                   Row(
                     children: [
-                      _buildStatusIndicator('已答', _answeredQuestions.length, Colors.blue),
+                      _buildStatusIndicator(
+                        '已答',
+                        _answeredQuestions.length,
+                        Colors.blue,
+                      ),
                       const SizedBox(width: 16),
                       _buildStatusIndicator('正确', _correctCount, Colors.green),
                       const SizedBox(width: 16),
-                      _buildStatusIndicator('错误', _answeredQuestions.length - _correctCount, Colors.red),
+                      _buildStatusIndicator(
+                        '错误',
+                        _answeredQuestions.length - _correctCount,
+                        Colors.red,
+                      ),
                     ],
                   ),
                 ],
@@ -267,18 +376,18 @@ class _QuizPageState extends State<QuizPage> {
                         color: isCurrent
                             ? Colors.yellow.withOpacity(0.3)
                             : isAnswered
-                                ? isCorrect
-                                    ? Colors.green.withOpacity(0.3)
-                                    : Colors.red.withOpacity(0.3)
-                                : Colors.grey.withOpacity(0.3),
+                            ? isCorrect
+                                  ? Colors.green.withOpacity(0.3)
+                                  : Colors.red.withOpacity(0.3)
+                            : Colors.grey.withOpacity(0.3),
                         border: Border.all(
                           color: isCurrent
                               ? Colors.yellow
                               : isAnswered
-                                  ? isCorrect
-                                      ? Colors.green
-                                      : Colors.red
-                                  : Colors.grey,
+                              ? isCorrect
+                                    ? Colors.green
+                                    : Colors.red
+                              : Colors.grey,
                           width: 2,
                         ),
                       ),
@@ -290,10 +399,10 @@ class _QuizPageState extends State<QuizPage> {
                             color: isCurrent
                                 ? Colors.yellow[800] as Color
                                 : isAnswered
-                                    ? isCorrect
-                                        ? Colors.green
-                                        : Colors.red
-                                    : Colors.grey[600] as Color,
+                                ? isCorrect
+                                      ? Colors.green
+                                      : Colors.red
+                                : Colors.grey[600] as Color,
                           ),
                         ),
                       ),
@@ -342,10 +451,7 @@ class _QuizPageState extends State<QuizPage> {
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color,
-          ),
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
         ),
         const SizedBox(width: 4),
         Text('$label: $count'),
@@ -386,10 +492,7 @@ class _QuizPageState extends State<QuizPage> {
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.settings),
-                ),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
               ],
             ),
             Row(
@@ -397,9 +500,7 @@ class _QuizPageState extends State<QuizPage> {
                 ElevatedButton(
                   onPressed: () {},
                   child: const Text('答题'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
@@ -423,10 +524,7 @@ class _QuizPageState extends State<QuizPage> {
             ),
             Row(
               children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.more_vert),
-                ),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
                 IconButton(
                   onPressed: () {},
                   icon: const Icon(Icons.fullscreen),
@@ -504,7 +602,9 @@ class _QuizPageState extends State<QuizPage> {
                   question: _currentQuestion,
                   userAnswer: _userAnswers[_currentQuestion.id],
                   onAnswerChanged: _handleAnswerChanged,
-                  showCorrectAnswer: _answeredQuestions.contains(_currentQuestion.id),
+                  showCorrectAnswer: _answeredQuestions.contains(
+                    _currentQuestion.id,
+                  ),
                   isAnswered: _answeredQuestions.contains(_currentQuestion.id),
                 ),
                 // 答案显示
@@ -523,9 +623,7 @@ class _QuizPageState extends State<QuizPage> {
                           children: [
                             const Text(
                               '正确答案: ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Text(
                               _getCorrectAnswerText(_currentQuestion),
@@ -541,9 +639,7 @@ class _QuizPageState extends State<QuizPage> {
                           children: [
                             const Text(
                               '您的选择: ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Text(
                               _getUserAnswerText(_currentQuestion),
@@ -580,13 +676,28 @@ class _QuizPageState extends State<QuizPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            TextButton.icon(
-                              onPressed: () {},
-                              icon: const Icon(Icons.error_outline),
-                              label: const Text('纠错'),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.grey,
-                              ),
+                            Row(
+                              children: [
+                                TextButton.icon(
+                                  onPressed: () {
+                                    // 生成AI解析
+                                    _generateAIAnalysis();
+                                  },
+                                  icon: const Icon(Icons.lightbulb_outline),
+                                  label: const Text('AI解析'),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.blue,
+                                  ),
+                                ),
+                                TextButton.icon(
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.error_outline),
+                                  label: const Text('纠错'),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -624,9 +735,7 @@ class _QuizPageState extends State<QuizPage> {
                 },
                 icon: const Icon(Icons.check),
                 label: const Text('标记完成'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
               )
             else
               ElevatedButton.icon(
@@ -641,9 +750,7 @@ class _QuizPageState extends State<QuizPage> {
                 },
                 icon: const Icon(Icons.edit),
                 label: const Text('重新答题'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
               ),
             ElevatedButton.icon(
               onPressed: _nextQuestion,
@@ -670,6 +777,12 @@ class _QuizPageState extends State<QuizPage> {
               onPressed: () {},
               icon: const Icon(Icons.star_border),
               tooltip: '收藏',
+            ),
+            IconButton(
+              onPressed: _generateAIAnalysis,
+              icon: const Icon(Icons.lightbulb_outline),
+              tooltip: 'AI解析',
+              color: Colors.blue,
             ),
             IconButton(
               onPressed: _showAnswerCard,
@@ -703,10 +816,12 @@ class _QuizPageState extends State<QuizPage> {
   // 获取用户答案文本
   String _getUserAnswerText(Question question) {
     final userAnswer = _userAnswers[question.id];
-    if (userAnswer == null || (userAnswer is List && userAnswer.isEmpty) || (userAnswer is String && userAnswer.isEmpty)) {
+    if (userAnswer == null ||
+        (userAnswer is List && userAnswer.isEmpty) ||
+        (userAnswer is String && userAnswer.isEmpty)) {
       return '/';
     }
-    
+
     switch (question.type) {
       case QuestionType.multipleChoice:
         return String.fromCharCode(65 + (userAnswer as int));
@@ -724,22 +839,17 @@ class _QuizPageState extends State<QuizPage> {
     final correctCount = _correctCount;
     final totalCount = widget.questions.length;
     final completionRate = (answeredCount / totalCount * 100).round();
-    final accuracy = totalCount > 0 ? (correctCount / totalCount * 100).round() : 0;
+    final accuracy = totalCount > 0
+        ? (correctCount / totalCount * 100).round()
+        : 0;
     final incorrectCount = totalCount - correctCount;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(
-          Icons.celebration,
-          size: 80,
-          color: Colors.green,
-        ),
+        const Icon(Icons.celebration, size: 80, color: Colors.green),
         const SizedBox(height: 24),
-        Text(
-          '练习完成！',
-          style: Theme.of(context).textTheme.headlineLarge,
-        ),
+        Text('练习完成！', style: Theme.of(context).textTheme.headlineLarge),
         const SizedBox(height: 24),
         Card(
           elevation: 4,
@@ -754,7 +864,11 @@ class _QuizPageState extends State<QuizPage> {
                 const Divider(height: 24),
                 _buildResultItem('完成题目', '$answeredCount/$totalCount'),
                 const Divider(height: 24),
-                _buildResultItem('正确题目', '$correctCount/$totalCount', isHighlighted: true),
+                _buildResultItem(
+                  '正确题目',
+                  '$correctCount/$totalCount',
+                  isHighlighted: true,
+                ),
                 const Divider(height: 24),
                 _buildResultItem('错误题目', '$incorrectCount/$totalCount'),
                 const Divider(height: 24),
@@ -770,9 +884,7 @@ class _QuizPageState extends State<QuizPage> {
           onPressed: _restartQuiz,
           icon: const Icon(Icons.restart_alt),
           label: const Text('重新练习'),
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(200, 50),
-          ),
+          style: ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
         ),
         const SizedBox(height: 16),
         ElevatedButton.icon(
@@ -790,20 +902,23 @@ class _QuizPageState extends State<QuizPage> {
     );
   }
 
-  Widget _buildResultItem(String label, String value, {bool isHighlighted = false}) {
+  Widget _buildResultItem(
+    String label,
+    String value, {
+    bool isHighlighted = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodyLarge),
         Text(
           value,
           style: TextStyle(
             fontSize: isHighlighted ? 24 : 18,
             fontWeight: FontWeight.bold,
-            color: isHighlighted ? Colors.blue : Theme.of(context).textTheme.bodyLarge?.color,
+            color: isHighlighted
+                ? Colors.blue
+                : Theme.of(context).textTheme.bodyLarge?.color,
           ),
         ),
       ],

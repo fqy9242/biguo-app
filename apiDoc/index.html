@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiGuo API文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin: 30px 0 20px;
+            color: #4a5568;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            margin: 20px 0 15px;
+            color: #2d3748;
+        }
+        
+        .endpoint {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        
+        .endpoint:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 10px;
+            color: white;
+        }
+        
+        .GET {
+            background-color: #3498db;
+        }
+        
+        .POST {
+            background-color: #2ecc71;
+        }
+        
+        .PUT {
+            background-color: #f39c12;
+        }
+        
+        .DELETE {
+            background-color: #e74c3c;
+        }
+        
+        .url {
+            font-family: 'Courier New', Courier, monospace;
+            color: #2d3748;
+            font-weight: bold;
+        }
+        
+        .description {
+            margin: 15px 0;
+            color: #4a5568;
+        }
+        
+        .parameters {
+            margin: 15px 0;
+        }
+        
+        .parameters h4 {
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background-color: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .response {
+            margin: 15px 0;
+        }
+        
+        .response h4 {
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        
+        .code {
+            background-color: #f7fafc;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: auto;
+            color: #2d3748;
+            border-left: 4px solid #667eea;
+        }
+        
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffeeba;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            color: #856404;
+        }
+        
+        .tag {
+            display: inline-block;
+            background-color: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #4a5568;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        
+        .auth {
+            background-color: #f0fff4;
+            border-left: 4px solid #48bb78;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            color: #276749;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BiGuo API文档</h1>
+            <p style="text-align: center; font-size: 1.1rem; opacity: 0.9;">版本: 1.0.0 | 最后更新: 2026-01-11</p>
+        </header>
+        
+        <section>
+            <h2>1. 认证相关API</h2>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/auth/login</span>
+                <h3>用户登录</h3>
+                <div class="description">
+                    用户登录接口，返回token和用户信息
+                </div>
+                <div class="parameters">
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>username</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>用户名</td>
+                        </tr>
+                        <tr>
+                            <td>password</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>密码</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "登录成功",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": "1",
+      "username": "test",
+      "nickname": "测试用户",
+      "email": "test@example.com",
+      "avatar": null,
+      "role": "user",
+      "status": "active"
+    }
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/auth/register</span>
+                <h3>用户注册</h3>
+                <div class="description">
+                    用户注册接口，创建新用户
+                </div>
+                <div class="parameters">
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>username</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>用户名</td>
+                        </tr>
+                        <tr>
+                            <td>password</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>密码</td>
+                        </tr>
+                        <tr>
+                            <td>nickname</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>昵称</td>
+                        </tr>
+                        <tr>
+                            <td>email</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>邮箱</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "注册成功",
+  "data": {
+    "id": "2",
+    "username": "newuser",
+    "nickname": "新用户",
+    "email": "newuser@example.com"
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/auth/logout</span>
+                <h3>用户登出</h3>
+                <div class="description">
+                    用户登出接口，清除token
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "登出成功"
+}
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>2. 用户相关API</h2>
+            
+            <div class="endpoint">
+                <span class="method GET">GET</span>
+                <span class="url">/api/users/me</span>
+                <h3>获取当前用户信息</h3>
+                <div class="description">
+                    获取当前登录用户的详细信息
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "获取成功",
+  "data": {
+    "id": "1",
+    "username": "test",
+    "nickname": "测试用户",
+    "email": "test@example.com",
+    "avatar": null,
+    "role": "user",
+    "status": "active",
+    "created_at": "2026-01-11T00:00:00Z"
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method PUT">PUT</span>
+                <span class="url">/api/users/me</span>
+                <h3>更新用户信息</h3>
+                <div class="description">
+                    更新当前登录用户的信息
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>nickname</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>昵称</td>
+                        </tr>
+                        <tr>
+                            <td>email</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>邮箱</td>
+                        </tr>
+                        <tr>
+                            <td>avatar</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>头像URL</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "更新成功",
+  "data": {
+    "id": "1",
+    "username": "test",
+    "nickname": "更新后的昵称",
+    "email": "updated@example.com",
+    "avatar": "https://example.com/avatar.jpg"
+  }
+}
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>3. 内容库相关API</h2>
+            
+            <div class="endpoint">
+                <span class="method GET">GET</span>
+                <span class="url">/api/banks</span>
+                <h3>获取内容库列表</h3>
+                <div class="description">
+                    获取当前用户的内容库列表
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>查询参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>page</td>
+                            <td>int</td>
+                            <td>否</td>
+                            <td>页码，默认1</td>
+                        </tr>
+                        <tr>
+                            <td>limit</td>
+                            <td>int</td>
+                            <td>否</td>
+                            <td>每页数量，默认10</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "获取成功",
+  "data": {
+    "total": 2,
+    "page": 1,
+    "limit": 10,
+    "banks": [
+      {
+        "id": "1",
+        "name": "Flutter基础",
+        "description": "Flutter开发基础知识点",
+        "question_count": 2,
+        "created_at": "2026-01-11T00:00:00Z",
+        "updated_at": "2026-01-11T00:00:00Z"
+      },
+      {
+        "id": "2",
+        "name": "Dart语法",
+        "description": "Dart编程语言语法知识点",
+        "question_count": 0,
+        "created_at": "2026-01-11T00:00:00Z",
+        "updated_at": "2026-01-11T00:00:00Z"
+      }
+    ]
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/banks</span>
+                <h3>创建新内容库</h3>
+                <div class="description">
+                    创建一个新的内容库
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>name</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题库名称</td>
+                        </tr>
+                        <tr>
+                            <td>description</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题库描述</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "创建成功",
+  "data": {
+    "id": "3",
+    "name": "新题库",
+    "description": "新题库描述",
+    "question_count": 0,
+    "created_at": "2026-01-11T00:00:00Z",
+    "updated_at": "2026-01-11T00:00:00Z"
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method GET">GET</span>
+                <span class="url">/api/banks/{id}</span>
+                <h3>获取内容库详情</h3>
+                <div class="description">
+                    获取指定内容库的详细信息
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>id</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题库ID</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "获取成功",
+  "data": {
+    "id": "1",
+    "name": "Flutter基础",
+    "description": "Flutter开发基础知识点",
+    "question_count": 2,
+    "user_id": "1",
+    "status": "active",
+    "created_at": "2026-01-11T00:00:00Z",
+    "updated_at": "2026-01-11T00:00:00Z"
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method PUT">PUT</span>
+                <span class="url">/api/banks/{id}</span>
+                <h3>更新内容库信息</h3>
+                <div class="description">
+                    更新指定内容库的信息
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>id</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题库ID</td>
+                        </tr>
+                    </table>
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>name</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题库名称</td>
+                        </tr>
+                        <tr>
+                            <td>description</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题库描述</td>
+                        </tr>
+                        <tr>
+                            <td>status</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题库状态</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "更新成功",
+  "data": {
+    "id": "1",
+    "name": "更新后的题库名称",
+    "description": "更新后的题库描述",
+    "status": "active",
+    "updated_at": "2026-01-11T00:00:00Z"
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method DELETE">DELETE</span>
+                <span class="url">/api/banks/{id}</span>
+                <h3>删除内容库</h3>
+                <div class="description">
+                    删除指定的内容库
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>id</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题库ID</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "删除成功"
+}
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>4. 题目相关API</h2>
+            
+            <div class="endpoint">
+                <span class="method GET">GET</span>
+                <span class="url">/api/banks/{bankId}/questions</span>
+                <h3>获取内容库题目列表</h3>
+                <div class="description">
+                    获取指定内容库的题目列表
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>bankId</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题库ID</td>
+                        </tr>
+                    </table>
+                    <h4>查询参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>type</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题目类型筛选</td>
+                        </tr>
+                        <tr>
+                            <td>difficulty</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>难度筛选</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "获取成功",
+  "data": {
+    "total": 2,
+    "questions": [
+      {
+        "id": "1",
+        "content": "以下哪个是Flutter的特点？",
+        "type": "multiple_choice",
+        "difficulty": "medium",
+        "created_at": "2026-01-11T00:00:00Z"
+      },
+      {
+        "id": "2",
+        "content": "Dart是Flutter使用的编程语言。",
+        "type": "true_false",
+        "difficulty": "easy",
+        "created_at": "2026-01-11T00:00:00Z"
+      }
+    ]
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/banks/{bankId}/questions</span>
+                <h3>添加题目</h3>
+                <div class="description">
+                    向指定内容库添加新题目
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>bankId</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题库ID</td>
+                        </tr>
+                    </table>
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>content</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题目内容</td>
+                        </tr>
+                        <tr>
+                            <td>type</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题目类型</td>
+                        </tr>
+                        <tr>
+                            <td>difficulty</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>难度级别</td>
+                        </tr>
+                        <tr>
+                            <td>explanation</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题目解析</td>
+                        </tr>
+                        <tr>
+                            <td>options</td>
+                            <td>array</td>
+                            <td>否</td>
+                            <td>选项列表（选择题）</td>
+                        </tr>
+                        <tr>
+                            <td>correctAnswer</td>
+                            <td>string/boolean</td>
+                            <td>否</td>
+                            <td>正确答案</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "添加成功",
+  "data": {
+    "id": "3",
+    "content": "Flutter的核心概念是________和________。",
+    "type": "fill_in_blank",
+    "difficulty": "medium",
+    "bank_id": "1",
+    "user_id": "1",
+    "created_at": "2026-01-11T00:00:00Z"
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method GET">GET</span>
+                <span class="url">/api/questions/{id}</span>
+                <h3>获取题目详情</h3>
+                <div class="description">
+                    获取指定题目的详细信息
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>id</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题目ID</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "获取成功",
+  "data": {
+    "id": "1",
+    "content": "以下哪个是Flutter的特点？",
+    "type": "multiple_choice",
+    "difficulty": "medium",
+    "explanation": "Flutter是一个跨平台的UI框架，可以使用一套代码构建iOS、Android、Web和桌面应用。",
+    "options": [
+      {
+        "id": "1",
+        "content": "跨平台开发",
+        "is_correct": true,
+        "option_order": 1
+      },
+      {
+        "id": "2",
+        "content": "仅支持iOS",
+        "is_correct": false,
+        "option_order": 2
+      },
+      {
+        "id": "3",
+        "content": "仅支持Android",
+        "is_correct": false,
+        "option_order": 3
+      },
+      {
+        "id": "4",
+        "content": "需要原生代码开发",
+        "is_correct": false,
+        "option_order": 4
+      }
+    ],
+    "bank_id": "1",
+    "user_id": "1",
+    "created_at": "2026-01-11T00:00:00Z"
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method PUT">PUT</span>
+                <span class="url">/api/questions/{id}</span>
+                <h3>更新题目信息</h3>
+                <div class="description">
+                    更新指定题目的信息
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>id</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题目ID</td>
+                        </tr>
+                    </table>
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>content</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题目内容</td>
+                        </tr>
+                        <tr>
+                            <td>type</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题目类型</td>
+                        </tr>
+                        <tr>
+                            <td>difficulty</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>难度级别</td>
+                        </tr>
+                        <tr>
+                            <td>explanation</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题目解析</td>
+                        </tr>
+                        <tr>
+                            <td>options</td>
+                            <td>array</td>
+                            <td>否</td>
+                            <td>选项列表（选择题）</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "更新成功",
+  "data": {
+    "id": "1",
+    "content": "更新后的题目内容",
+    "type": "multiple_choice",
+    "difficulty": "medium",
+    "explanation": "更新后的解析",
+    "updated_at": "2026-01-11T00:00:00Z"
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method DELETE">DELETE</span>
+                <span class="url">/api/questions/{id}</span>
+                <h3>删除题目</h3>
+                <div class="description">
+                    删除指定的题目
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>id</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题目ID</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "删除成功"
+}
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>5. 答题相关API</h2>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/answers</span>
+                <h3>提交答案</h3>
+                <div class="description">
+                    提交用户的答题答案
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>questionId</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题目ID</td>
+                        </tr>
+                        <tr>
+                            <td>bankId</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题库ID</td>
+                        </tr>
+                        <tr>
+                            <td>userAnswer</td>
+                            <td>string/boolean</td>
+                            <td>是</td>
+                            <td>用户答案</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "提交成功",
+  "data": {
+    "id": "1",
+    "question_id": "1",
+    "bank_id": "1",
+    "user_id": "1",
+    "user_answer": "跨平台开发",
+    "is_correct": true,
+    "answered_at": "2026-01-11T00:00:00Z"
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method GET">GET</span>
+                <span class="url">/api/banks/{bankId}/answers</span>
+                <h3>获取内容库答题记录</h3>
+                <div class="description">
+                    获取指定内容库的答题记录
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>bankId</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题库ID</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "获取成功",
+  "data": {
+    "total": 2,
+    "answers": [
+      {
+        "id": "1",
+        "question_id": "1",
+        "question_content": "以下哪个是Flutter的特点？",
+        "user_answer": "跨平台开发",
+        "is_correct": true,
+        "answered_at": "2026-01-11T00:00:00Z"
+      },
+      {
+        "id": "2",
+        "question_id": "2",
+        "question_content": "Dart是Flutter使用的编程语言。",
+        "user_answer": true,
+        "is_correct": true,
+        "answered_at": "2026-01-11T00:00:00Z"
+      }
+    ]
+  }
+}
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>6. 学习记录相关API</h2>
+            
+            <div class="endpoint">
+                <span class="method GET">GET</span>
+                <span class="url">/api/study-records</span>
+                <h3>获取学习记录</h3>
+                <div class="description">
+                    获取当前用户的学习记录
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>查询参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>bankId</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题库ID</td>
+                        </tr>
+                        <tr>
+                            <td>startDate</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>开始日期</td>
+                        </tr>
+                        <tr>
+                            <td>endDate</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>结束日期</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "获取成功",
+  "data": {
+    "total": 2,
+    "records": [
+      {
+        "id": "1",
+        "bank_id": "1",
+        "bank_name": "Flutter基础题库",
+        "study_date": "2026-01-11",
+        "study_duration": 30,
+        "question_count": 10,
+        "correct_count": 8,
+        "accuracy": 80.00
+      },
+      {
+        "id": "2",
+        "bank_id": "2",
+        "bank_name": "Dart语法题库",
+        "study_date": "2026-01-10",
+        "study_duration": 20,
+        "question_count": 5,
+        "correct_count": 4,
+        "accuracy": 80.00
+      }
+    ]
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/study-records</span>
+                <h3>创建学习记录</h3>
+                <div class="description">
+                    创建新的学习记录
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>bankId</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题库ID</td>
+                        </tr>
+                        <tr>
+                            <td>studyDuration</td>
+                            <td>int</td>
+                            <td>是</td>
+                            <td>学习时长（分钟）</td>
+                        </tr>
+                        <tr>
+                            <td>questionCount</td>
+                            <td>int</td>
+                            <td>是</td>
+                            <td>答题数量</td>
+                        </tr>
+                        <tr>
+                            <td>correctCount</td>
+                            <td>int</td>
+                            <td>是</td>
+                            <td>正确数量</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "创建成功",
+  "data": {
+    "id": "3",
+    "bank_id": "1",
+    "user_id": "1",
+    "study_date": "2026-01-11",
+    "study_duration": 45,
+    "question_count": 15,
+    "correct_count": 12,
+    "accuracy": 80.00
+  }
+}
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>7. AI解析相关API</h2>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/ai/analyze</span>
+                <h3>生成AI解析</h3>
+                <div class="description">
+                    为指定题目生成AI解析
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>questionId</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题目ID</td>
+                        </tr>
+                        <tr>
+                            <td>userId</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>用户ID</td>
+                        </tr>
+                        <tr>
+                            <td>prompt</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>自定义提示词</td>
+                        </tr>
+                        <tr>
+                            <td>save</td>
+                            <td>boolean</td>
+                            <td>否</td>
+                            <td>是否自动保存解析结果</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "解析生成成功",
+  "data": {
+    "id": "1",
+    "question_id": "1",
+    "user_id": "1",
+    "analysis_content": "这道题主要考察Flutter的核心特点。Flutter是一个跨平台的UI框架，由Google开发，使用Dart语言编写。它的主要特点包括：1. 跨平台开发 - 一套代码可以运行在iOS、Android、Web和桌面端；2. 高性能 - 使用Skia图形引擎，性能接近原生应用；3. 热重载 - 开发过程中可以实时查看修改效果；4. 丰富的组件库 - 提供了大量现成的UI组件。因此，正确答案是选项A：跨平台开发。",
+    "generated_at": "2026-01-11T12:00:00Z",
+    "is_saved": true
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method GET">GET</span>
+                <span class="url">/api/ai/analyses</span>
+                <h3>获取解析历史</h3>
+                <div class="description">
+                    获取用户的AI解析历史记录
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>查询参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>questionId</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题目ID</td>
+                        </tr>
+                        <tr>
+                            <td>page</td>
+                            <td>int</td>
+                            <td>否</td>
+                            <td>页码，默认1</td>
+                        </tr>
+                        <tr>
+                            <td>limit</td>
+                            <td>int</td>
+                            <td>否</td>
+                            <td>每页数量，默认10</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "获取成功",
+  "data": {
+    "total": 2,
+    "page": 1,
+    "limit": 10,
+    "analyses": [
+      {
+        "id": "1",
+        "question_id": "1",
+        "question_content": "以下哪个是Flutter的特点？",
+        "analysis_content": "这道题主要考察Flutter的核心特点...",
+        "generated_at": "2026-01-11T12:00:00Z",
+        "is_saved": true
+      },
+      {
+        "id": "2",
+        "question_id": "2",
+        "question_content": "Dart是Flutter使用的编程语言。",
+        "analysis_content": "这道题考察Flutter的编程语言...",
+        "generated_at": "2026-01-11T11:30:00Z",
+        "is_saved": false
+      }
+    ]
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/ai/analyses/{id}/save</span>
+                <h3>保存解析结果</h3>
+                <div class="description">
+                    保存AI解析结果到用户的收藏中
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>id</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>解析ID</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "保存成功",
+  "data": {
+    "id": "1",
+    "question_id": "1",
+    "user_id": "1",
+    "is_saved": true,
+    "saved_at": "2026-01-11T12:05:00Z"
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method DELETE">DELETE</span>
+                <span class="url">/api/ai/analyses/{id}</span>
+                <h3>删除解析结果</h3>
+                <div class="description">
+                    删除指定的AI解析结果
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>id</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>解析ID</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "删除成功"
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/ai/analyses/{id}/regenerate</span>
+                <h3>重新生成解析</h3>
+                <div class="description">
+                    为指定的解析结果重新生成内容
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>id</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>解析ID</td>
+                        </tr>
+                    </table>
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>prompt</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>自定义提示词</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "重新生成成功",
+  "data": {
+    "id": "1",
+    "question_id": "1",
+    "user_id": "1",
+    "analysis_content": "重新生成的解析内容...",
+    "generated_at": "2026-01-11T12:10:00Z",
+    "is_saved": true
+  }
+}
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>8. 收藏相关API</h2>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/collections</span>
+                <h3>收藏题目</h3>
+                <div class="description">
+                    收藏指定的题目
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>questionId</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>题目ID</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "收藏成功",
+  "data": {
+    "id": "1",
+    "user_id": "1",
+    "question_id": "1",
+    "collection_time": "2026-01-11T00:00:00Z"
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method GET">GET</span>
+                <span class="url">/api/collections</span>
+                <h3>获取收藏列表</h3>
+                <div class="description">
+                    获取当前用户的收藏题目列表
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "获取成功",
+  "data": {
+    "total": 2,
+    "collections": [
+      {
+        "id": "1",
+        "question_id": "1",
+        "collection_time": "2026-01-11T00:00:00Z",
+        "question": {
+          "id": "1",
+          "content": "以下哪个是Flutter的特点？",
+          "type": "multiple_choice",
+          "difficulty": "medium",
+          "bank_id": "1",
+          "bank_name": "Flutter基础题库"
+        }
+      },
+      {
+        "id": "2",
+        "question_id": "2",
+        "collection_time": "2026-01-11T00:00:00Z",
+        "question": {
+          "id": "2",
+          "content": "Dart是Flutter使用的编程语言。",
+          "type": "true_false",
+          "difficulty": "easy",
+          "bank_id": "1",
+          "bank_name": "Flutter基础题库"
+        }
+      }
+    ]
+  }
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method DELETE">DELETE</span>
+                <span class="url">/api/collections/{id}</span>
+                <h3>取消收藏</h3>
+                <div class="description">
+                    取消对指定题目的收藏
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>id</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>收藏记录ID</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "取消收藏成功"
+}
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>© 2026 BiGuo API文档 | 版本 1.0.0</p>
+        </footer>
+    </div>
+</body>
+</html>
