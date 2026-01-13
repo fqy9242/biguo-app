@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/lib/models.dart';
 import '../components/question_widget.dart';
 
@@ -22,11 +23,13 @@ class _QuizPageState extends State<QuizPage> {
   bool _autoNext = true;
   int _correctCount = 0;
   int _totalCount = 0;
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
     _totalCount = widget.questions.length;
+    _pageController = PageController(initialPage: 0);
     // 初始化用户答案
     for (var question in widget.questions) {
       switch (question.type) {
@@ -47,6 +50,117 @@ class _QuizPageState extends State<QuizPage> {
           _isCorrect[question.id] = false;
           break;
       }
+    }
+    // 加载保存的进度
+    _loadProgress();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  // 保存答题进度
+  Future<void> _saveProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final progressKey =
+        'quiz_progress_${widget.title}_${widget.questions.length}';
+
+    final progressData = {
+      'currentQuestionIndex': _currentQuestionIndex,
+      'userAnswers': _userAnswers,
+      'isCorrect': _isCorrect,
+      'answeredQuestions': _answeredQuestions.toList(),
+      'correctCount': _correctCount,
+    };
+
+    // 转换为可存储的格式
+    await prefs.setInt('${progressKey}_currentIndex', _currentQuestionIndex);
+    await prefs.setInt('${progressKey}_correctCount', _correctCount);
+    await prefs.setStringList(
+      '${progressKey}_answeredQuestions',
+      _answeredQuestions.toList(),
+    );
+
+    // 保存用户答案和正确性（简化版，实际应用中可能需要更复杂的序列化）
+    for (var entry in _userAnswers.entries) {
+      if (entry.value != null) {
+        await prefs.setString(
+          '${progressKey}_answer_${entry.key}',
+          entry.value.toString(),
+        );
+      }
+    }
+
+    for (var entry in _isCorrect.entries) {
+      await prefs.setBool('${progressKey}_correct_${entry.key}', entry.value);
+    }
+
+    print('进度已保存');
+  }
+
+  // 加载答题进度
+  Future<void> _loadProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final progressKey =
+        'quiz_progress_${widget.title}_${widget.questions.length}';
+
+    final currentIndex = prefs.getInt('${progressKey}_currentIndex');
+    final correctCount = prefs.getInt('${progressKey}_correctCount');
+    final answeredQuestions = prefs.getStringList(
+      '${progressKey}_answeredQuestions',
+    );
+
+    if (currentIndex != null) {
+      setState(() {
+        _currentQuestionIndex = currentIndex;
+        if (correctCount != null) {
+          _correctCount = correctCount;
+        }
+        if (answeredQuestions != null) {
+          _answeredQuestions = Set.from(answeredQuestions);
+        }
+
+        // 加载用户答案和正确性
+        for (var question in widget.questions) {
+          final answer = prefs.getString(
+            '${progressKey}_answer_${question.id}',
+          );
+          final isCorrect = prefs.getBool(
+            '${progressKey}_correct_${question.id}',
+          );
+
+          if (answer != null) {
+            // 简化处理，实际应用中需要根据题目类型进行类型转换
+            switch (question.type) {
+              case QuestionType.multipleChoice:
+                _userAnswers[question.id] = int.tryParse(answer);
+                break;
+              case QuestionType.trueFalse:
+                _userAnswers[question.id] = answer == 'true';
+                break;
+              case QuestionType.fillInTheBlank:
+                _userAnswers[question.id] = answer.split(',');
+                break;
+              case QuestionType.shortAnswer:
+                _userAnswers[question.id] = answer;
+                break;
+            }
+          }
+
+          if (isCorrect != null) {
+            _isCorrect[question.id] = isCorrect;
+          }
+        }
+      });
+
+      // 设置PageController到加载的页面
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _pageController.jumpToPage(currentIndex!);
+      });
+
+      print('进度已加载');
     }
   }
 
@@ -90,6 +204,9 @@ class _QuizPageState extends State<QuizPage> {
         _nextQuestion();
       }
     });
+
+    // 保存进度
+    _saveProgress();
   }
 
   void _markAsAnswered() {
@@ -131,21 +248,26 @@ class _QuizPageState extends State<QuizPage> {
         _correctCount--;
       }
     });
+
+    // 保存进度
+    _saveProgress();
   }
 
   void _nextQuestion() {
     if (_currentQuestionIndex < widget.questions.length - 1) {
-      setState(() {
-        _currentQuestionIndex++;
-      });
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     }
   }
 
   void _previousQuestion() {
     if (_currentQuestionIndex > 0) {
-      setState(() {
-        _currentQuestionIndex--;
-      });
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     }
   }
 
@@ -495,32 +617,37 @@ class _QuizPageState extends State<QuizPage> {
                 IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
               ],
             ),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('答题'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('背题'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[300],
-                    foregroundColor: Colors.black,
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: const Text('答题'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('语音'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[300],
-                    foregroundColor: Colors.black,
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: const Text('背题'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      foregroundColor: Colors.black,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: const Text('语音'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      foregroundColor: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
             ),
             Row(
               children: [
@@ -582,136 +709,157 @@ class _QuizPageState extends State<QuizPage> {
           alignment: Alignment.centerLeft,
         ),
         const SizedBox(height: 16),
-        // 题目内容
+        // 题目内容 - 使用PageView实现滑动切换
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _currentQuestion.content,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
-                const SizedBox(height: 24),
-                QuestionWidget(
-                  question: _currentQuestion,
-                  userAnswer: _userAnswers[_currentQuestion.id],
-                  onAnswerChanged: _handleAnswerChanged,
-                  showCorrectAnswer: _answeredQuestions.contains(
-                    _currentQuestion.id,
-                  ),
-                  isAnswered: _answeredQuestions.contains(_currentQuestion.id),
-                ),
-                // 答案显示
-                if (_answeredQuestions.contains(_currentQuestion.id)) ...[
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.grey[100],
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: widget.questions.length,
+            onPageChanged: (index) {
+              setState(() {
+                _currentQuestionIndex = index;
+              });
+              // 保存进度
+              _saveProgress();
+            },
+            itemBuilder: (context, index) {
+              final question = widget.questions[index];
+              final isAnswered = _answeredQuestions.contains(question.id);
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      question.content,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      textAlign: TextAlign.left,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Text(
-                              '正确答案: ',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              _getCorrectAnswerText(_currentQuestion),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                          ],
+                    const SizedBox(height: 24),
+                    QuestionWidget(
+                      question: question,
+                      userAnswer: _userAnswers[question.id],
+                      onAnswerChanged: (answer) {
+                        // 确保当前题目是正在显示的题目
+                        if (index == _currentQuestionIndex) {
+                          _handleAnswerChanged(answer);
+                        }
+                      },
+                      showCorrectAnswer: isAnswered,
+                      isAnswered: isAnswered,
+                    ),
+                    // 答案显示
+                    if (isAnswered) ...[
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey[100],
                         ),
-                        const SizedBox(height: 8),
-                        Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              '您的选择: ',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              _getUserAnswerText(_currentQuestion),
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: _isCorrect[_currentQuestion.id] ?? false
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // 试题详解
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.grey[100],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              '试题详解',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
                             Row(
                               children: [
-                                TextButton.icon(
-                                  onPressed: () {
-                                    // 生成AI解析
-                                    _generateAIAnalysis();
-                                  },
-                                  icon: const Icon(Icons.lightbulb_outline),
-                                  label: const Text('AI解析'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.blue,
+                                const Text(
+                                  '正确答案: ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  _getCorrectAnswerText(question),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green,
                                   ),
                                 ),
-                                TextButton.icon(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.error_outline),
-                                  label: const Text('纠错'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.grey,
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                const Text(
+                                  '您的选择: ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  _getUserAnswerText(question),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: _isCorrect[question.id] ?? false
+                                        ? Colors.green
+                                        : Colors.red,
                                   ),
                                 ),
                               ],
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        if (_currentQuestion.explanation != null) ...[
-                          Text(_currentQuestion.explanation!),
-                        ] else
-                          const Text('暂无解析'),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
+                      ),
+                      const SizedBox(height: 24),
+                      // 试题详解
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey[100],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  '试题详解',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    TextButton.icon(
+                                      onPressed: () {
+                                        // 确保当前题目是正在显示的题目
+                                        if (index == _currentQuestionIndex) {
+                                          _generateAIAnalysis();
+                                        }
+                                      },
+                                      icon: const Icon(Icons.lightbulb_outline),
+                                      label: const Text('AI解析'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.blue,
+                                      ),
+                                    ),
+                                    TextButton.icon(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.error_outline),
+                                      label: const Text('纠错'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            if (question.explanation != null) ...[
+                              Text(question.explanation!),
+                            ] else
+                              const Text('暂无解析'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            },
           ),
         ),
         const SizedBox(height: 24),
@@ -747,6 +895,8 @@ class _QuizPageState extends State<QuizPage> {
                     _answeredQuestions.remove(_currentQuestion.id);
                     _isCorrect[_currentQuestion.id] = false;
                   });
+                  // 保存进度
+                  _saveProgress();
                 },
                 icon: const Icon(Icons.edit),
                 label: const Text('重新答题'),

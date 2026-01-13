@@ -702,6 +702,83 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="endpoint">
+                <span class="method POST">POST</span>
+                <span class="url">/api/banks/{id}/merge</span>
+                <h3>合并内容库</h3>
+                <div class="description">
+                    将一个内容库的题目合并到当前内容库
+                </div>
+                <div class="auth">
+                    <strong>认证要求:</strong> 需要在请求头中添加 Authorization: Bearer {token}
+                </div>
+                <div class="parameters">
+                    <h4>路径参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>id</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>目标内容库ID</td>
+                        </tr>
+                    </table>
+                    <h4>请求参数</h4>
+                    <table>
+                        <tr>
+                            <th>参数名</th>
+                            <th>类型</th>
+                            <th>是否必填</th>
+                            <th>描述</th>
+                        </tr>
+                        <tr>
+                            <td>sourceBankId</td>
+                            <td>string</td>
+                            <td>是</td>
+                            <td>源内容库ID</td>
+                        </tr>
+                        <tr>
+                            <td>includeAll</td>
+                            <td>boolean</td>
+                            <td>否</td>
+                            <td>是否包含所有题目，默认true</td>
+                        </tr>
+                        <tr>
+                            <td>typeFilter</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>题目类型筛选</td>
+                        </tr>
+                        <tr>
+                            <td>difficultyFilter</td>
+                            <td>string</td>
+                            <td>否</td>
+                            <td>难度筛选</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="response">
+                    <h4>响应示例</h4>
+                    <div class="code">
+{
+  "code": 200,
+  "message": "合并成功",
+  "data": {
+    "sourceBankId": "2",
+    "targetBankId": "1",
+    "mergedQuestionsCount": 5,
+    "totalQuestionsCount": 15
+  }
+}
+                    </div>
+                </div>
+            </div>
         </section>
         
         <section>

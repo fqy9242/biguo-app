@@ -134,6 +134,64 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
     }
   }
 
+  // 合并题库
+  void _mergeQuestionBanks() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        String? selectedBankName;
+        List<String> availableBanks = ['数学题库', '英语题库', '物理题库', '化学题库'];
+
+        return AlertDialog(
+          title: const Text('合并题库'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('请选择要合并的题库：'),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: '选择题库',
+                  border: OutlineInputBorder(),
+                ),
+                value: selectedBankName,
+                items: availableBanks.map((bank) {
+                  return DropdownMenuItem(value: bank, child: Text(bank));
+                }).toList(),
+                onChanged: (value) {
+                  selectedBankName = value;
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (selectedBankName != null) {
+                  // 模拟合并过程
+                  Future.delayed(const Duration(seconds: 1), () {
+                    Navigator.pop(context);
+                    // 显示合并成功提示
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('已成功合并 $selectedBankName 到当前题库')),
+                    );
+                  });
+                }
+              },
+              child: const Text('合并'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // 生成AI解析
   void _generateAIAnalysis(Question question) {
     showDialog(
@@ -244,6 +302,11 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
             onPressed: _navigateToAddQuestion,
             icon: const Icon(Icons.add),
             tooltip: '添加题目',
+          ),
+          IconButton(
+            onPressed: _mergeQuestionBanks,
+            icon: const Icon(Icons.merge_type),
+            tooltip: '合并题库',
           ),
         ],
       ),
