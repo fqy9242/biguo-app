@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'models/lib/models.dart';
 import 'pages/quiz_page.dart';
 import 'pages/question_bank_page.dart';
+import 'pages/bank_detail_page.dart';
 import 'pages/add_question_page.dart';
 import 'pages/import_word_page.dart';
 import 'pages/login_page.dart';
@@ -241,6 +242,27 @@ class _HomePageState extends State<HomePage> {
     ).then((_) => setState(() {}));
   }
 
+  // 导航到题库详情页面
+  void _navigateToBankDetail(QuizBank bank) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BankDetailPage(
+          bank: bank,
+          onQuestionAdded: (question) {
+            bank.addQuestion(question);
+          },
+          onQuestionDeleted: (id) {
+            bank.removeQuestion(id);
+          },
+          onQuestionUpdated: (question) {
+            bank.updateQuestion(question);
+          },
+        ),
+      ),
+    ).then((_) => setState(() {}));
+  }
+
   // 导航到Word导入页面
   void _navigateToImportWord(QuizBank bank) {
     Navigator.push(
@@ -361,7 +383,7 @@ class _HomePageState extends State<HomePage> {
                                     1; // 模拟星标
 
                             return GestureDetector(
-                              onTap: () => _navigateToQuiz(bank),
+                              onTap: () => _navigateToBankDetail(bank),
                               child: Container(
                                 margin: const EdgeInsets.symmetric(vertical: 4),
                                 decoration: BoxDecoration(
@@ -502,13 +524,15 @@ class _HomePageState extends State<HomePage> {
                                       Column(
                                         children: [
                                           IconButton(
-                                            onPressed: () {},
+                                            onPressed: () =>
+                                                _navigateToQuestionBank(bank),
                                             icon: Icon(
-                                              Icons.refresh,
-                                              color: Colors.grey[500],
+                                              Icons.edit,
+                                              color: Colors.blue,
                                               size: 20,
                                             ),
                                             padding: EdgeInsets.zero,
+                                            tooltip: '题库管理',
                                           ),
                                           IconButton(
                                             onPressed: () {},
@@ -518,6 +542,7 @@ class _HomePageState extends State<HomePage> {
                                               size: 20,
                                             ),
                                             padding: EdgeInsets.zero,
+                                            tooltip: '更多',
                                           ),
                                         ],
                                       ),
